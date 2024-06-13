@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: alpine-policy
+  namespace: ns-two
+spec:
+  podSelector: 
+    matchLabels:
+      key: testingPodProtector
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector: {}

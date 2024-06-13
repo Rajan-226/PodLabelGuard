@@ -1,8 +1,12 @@
-# podlabelguard
-// TODO(user): Add simple overview of use/purpose
-
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+
+Network policies can be created to control the traffic between network entities on the Kubernetes cluster.
+When we create a NetPol, we specify which pods we want to control the traffic of using the labels of the
+pod.
+
+This is an application that makes sure that as soon as a pod's labels are edited and those
+labels are being referred in a NetPol, users should be warned that the labels are being used in a
+NetPol and the labels should not be edited.
 
 ## Getting Started
 
@@ -14,23 +18,29 @@ kubebuilder create api --group core --version v1 --kind Pod --resource=false --c
 
 kubebuilder create webhook --group core --version v1 --kind Pod --programmatic-validation
 
-make manifests
 
-
-openssl req -x509 -newkey rsa:4096 -keyout tls.key -out tls.crt -days 365 -nodes -subj "/CN=pod-guard.ns-two.svc" -addext "subjectAltName=DNS:pod-guard.ns-two.svc"
+openssl req -x509 -newkey rsa:4096 -keyout tls.key -out tls.crt -days 365 -nodes -subj "/CN=pod-guard.ns-two.svc" -addtext "subjectAltName=DNS:pod-guard.ns-two.svc"
+#SAN is important for k8s certs ^
 
 kubectl create secret tls podlabelguard-secret --cert=tls.crt --key=tls.key -n ns-two --dry-run=client -oyaml>podlabelguard-secret.yaml
 
 docker build -t rajan226/podlabelguard:0.1.1 .
 docker push rajan226/podlabelguard:0.1.1
 
-build docker image -> apply k8s secret object-> apply deployment -> apply admissionwebhook object
-
-
-
-
+build docker image -> push image to registry
 
 ```
+
+
+ - Create secret object using ssl certs with service X in SAN
+ - Create deployment Y with above image with secrets mounted
+ - Create service X for deployment Y
+ - Create clusterrole and clusterrolebinding for deployment Y's service account
+ - Create ValidatingWebhookConfiguration object with suitable webhook endpoint and service name of deployment Y
+ - Create test pod and coresponding test network policy 
+ - Edit test pod's labels and play around
+
+![alt text](image.png)
 
 
 ### Prerequisites
