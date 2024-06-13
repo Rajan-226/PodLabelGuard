@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pod-guard
+  name: pod-guard
+  namespace: ns-two
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-guard
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: pod-guard
+    spec:
+      containers:
+      - image: rajan226/podlabelguard:0.1.1
+        name: podlabelguard
+        resources: {}
+        volumeMounts:
+          - name: serving-cert
+            mountPath: /tmp/k8s-webhook-server/serving-certs
+      volumes:
+        - name: serving-cert
+          secret:
+            secretName: podlabelguard-secret

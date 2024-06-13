@@ -25,6 +25,7 @@ import (
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	v1 "github.com/Rajan-226/podlabelguard/api/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -33,6 +34,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -119,6 +121,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	decoder := admission.NewDecoder(mgr.GetScheme())
+
+	pv := v1.NewPodValidator(mgr.GetClient(), decoder)
+	mgr.GetWebhookServer().Register("/validate-core-v1-pod-labels", &webhook.Admission{Handler: pv})
+
+	// if err = (&v1.PodValidator{}).SetupWebhookWithManager(mgr); err != nil {
+	//     setupLog.Error(err, "unable to create webhook", "webhook", "Pod")
+	//     os.Exit(1)
+	// }webhookcainjection_patch.yaml
 	// +kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pod-guard
+  namespace: ns-two
+  labels:
+    app: pod-guard
+spec:
+  ports:
+  - port: 443
+    targetPort: 9443 
+  selector:
+    app: pod-guard

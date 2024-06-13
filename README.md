@@ -6,11 +6,27 @@
 
 ## Getting Started
 
-### Commands used for scaffolding
+### Commands
 ```
 kubebuilder init --domain secure.podlabel --repo github.com/Rajan-226/podlabelguard
 
-kubebuilder create api — group core — version v1 — kind Pod — resource=false — controller=false
+kubebuilder create api --group core --version v1 --kind Pod --resource=false --controller=false
+
+kubebuilder create webhook --group core --version v1 --kind Pod --programmatic-validation
+
+make manifests
+
+
+openssl req -x509 -newkey rsa:4096 -keyout tls.key -out tls.crt -days 365 -nodes -subj "/CN=pod-guard.ns-two.svc" -addext "subjectAltName=DNS:pod-guard.ns-two.svc"
+
+kubectl create secret tls podlabelguard-secret --cert=tls.crt --key=tls.key -n ns-two --dry-run=client -oyaml>podlabelguard-secret.yaml
+
+docker build -t rajan226/podlabelguard:0.1.1 .
+docker push rajan226/podlabelguard:0.1.1
+
+build docker image -> apply k8s secret object-> apply deployment -> apply admissionwebhook object
+
+
 
 
 
